@@ -19,14 +19,14 @@ class PGSQL_DB(DB_Abstract):
             if (not("public.users" in tables)):
                 try:
                     self.conn.query("CREATE TABLE users(uid bigint primary key, name text, bio text)")
-                except:
-                    print("sth wrong bro")
+                except Exception as ex:
+                    print(ex)
                     self.conn = None
             if (not("public.tweets" in tables)):
                 try:
                     self.conn.query("CREATE TABLE tweets(tid bigint primary key, author_id bigint, parent_id bigint, timestamp bigint, text text)")
-                except:
-                    print("sth wrong bro")
+                except Exception as ex:
+                    print(ex)
                     self.conn = None
 
     def insert_user(self, user):
