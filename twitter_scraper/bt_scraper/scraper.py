@@ -1,20 +1,13 @@
 #!/usr/bin/python3
 import re
 from json import loads
+from dateutil.parser import parse
 
-from rest import run_query
+from .rest import run_query
+from .user import User
+from .tweet import Tweet
 
-class User:
-    name = ""
-    identifier = ""
-    bio = ""
-
-    def __init__(self, username, user_id, bio):
-        name = username
-        identifier = user_id
-        bio = bio
-
-class BT_Scraper:
+class Scraper:
     _token = ""
 
     def __init__(self):
@@ -27,11 +20,11 @@ class BT_Scraper:
         q = run_query(url, token=self._token)
         u = loads(q)['data']['user']
 
-        user = { 'name': "", 'id': "", 'bio': ""  }
+        user = User()
 
-        user['name'] = u['legacy']['name']
-        user['id'] = u['rest_id']
-        user['bio'] = u['legacy']['description']
+        user.name = u['legacy']['name']
+        user.user_id = u['rest_id']
+        user.bio = u['legacy']['description']
 
         return user
 
@@ -44,14 +37,14 @@ class BT_Scraper:
 
         for tweet_raw in tweets_raw:
             t = tweets_raw[tweet_raw]
-            tweet = { 'id': "", 'author_id': "", 'parent_id': "", 'timestamp': "", 'text': "" }
-            tweet['id'] = t['id_str']
-            tweet['author_id'] = t['user_id_str']
-            tweet['text'] = t['text']
-            tweet['parent_id'] = t['conversation_id_str']
-            tweet['timestamp'] = t['created_at']
+            tweet = Tweet()
+            tweet.tweet_id = t['id_str']
+            tweet.author_id = t['user_id_str']
+            tweet.text = t['text']
+            tweet.parent_id = t['conversation_id_str']
+            tweet.timestamp = int(parse(t['created_at']).strftime("%s"))
             tweets.append(tweet)
-        
+ 
         return tweets
 
     def get_tweet_with_replies(self, tweet_id):
@@ -63,12 +56,12 @@ class BT_Scraper:
 
         for tweet_raw in tweets_raw:
             t = tweets_raw[tweet_raw]
-            tweet = { 'id': "", 'author_id': "", 'parent_id': "", 'timestamp': "", 'text': "" }
-            tweet['id'] = t['id_str']
-            tweet['author_id'] = t['user_id_str']
-            tweet['text'] = t['text']
-            tweet['parent_id'] = t['conversation_id_str']
-            tweet['timestamp'] = t['created_at']
+            tweet = Tweet()
+            tweet.tweet_id = t['id_str']
+            tweet.author_id = t['user_id_str']
+            tweet.text = t['text']
+            tweet.parent_id = t['conversation_id_str']
+            tweet.timestamp = int(parse(t['created_at']).strftime("%s"))
             tweets.append(tweet)
  
         return tweets

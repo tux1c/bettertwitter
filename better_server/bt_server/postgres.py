@@ -1,6 +1,6 @@
 from db_abstract import DB_Abstract
-from user import User
-from tweet import Tweet
+from bt_scraper import User
+from bt_scraper import Tweet
 
 from pg import DB
 
@@ -44,8 +44,8 @@ class PGSQL_DB(DB_Abstract):
 
         try:
             self.conn.insert('users', {'uid': user.user_id, 'name': user.name, 'bio': user.bio})
-        except:
-            print("sth wrong bro inser_user")
+        except Exception as ex:
+            print(ex)
             return 400
 
         return 200
@@ -65,8 +65,8 @@ class PGSQL_DB(DB_Abstract):
 
         try:
             self.conn.insert('tweets', {'tid':tweet.tweet_id, 'author_id':tweet.author_id, 'parent_id':tweet.parent_id, 'timestamp':tweet.timestamp, 'text':tweet.text})
-        except:
-            print("sth wrong bro insert_tweet")
+        except Exception as ex:
+            print(ex)
             return 400
 
         return 200
@@ -82,8 +82,8 @@ class PGSQL_DB(DB_Abstract):
 
         try:
            u = self.conn.get('users', {'uid': user_id})
-        except:
-            print("sth wrong brong get_user_by_id")
+        except Exception as ex:
+            print(ex)
             return None
 
         user = User()
@@ -100,8 +100,8 @@ class PGSQL_DB(DB_Abstract):
 
         try:
             t = self.conn.get('tweets', {'tid': tweet_id})
-        except:
-            print("sth wrong bro get_tweet_by_id")
+        except Exception as ex:
+            print(ex)
             return None
 
         tweet = Tweet()
@@ -120,8 +120,8 @@ class PGSQL_DB(DB_Abstract):
 
         try:
             t = self.conn.get_as_list('tweets', where="parent_id = " + tweet_id)
-        except:
-            print("sth wrong bro get_replies_by_id")
+        except Exception as ex:
+            print(ex)
             return None
 
         tweets = []
