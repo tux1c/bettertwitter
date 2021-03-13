@@ -14,7 +14,8 @@ from bt_scraper import Scraper
 from webapi import WebAPI
 
 class BTServer:
-    db = PGSQL_DB("bettertwitter", "localhost", 5432, "bettertwitter", "123")
+    db = None
+    #db = PGSQL_DB("bettertwitter", "localhost", 5432, "bettertwitter", "123")
     cfg = configparser.ConfigParser()
     
     def thrd_scrape_users(self, users, sleep_time):
@@ -52,13 +53,30 @@ class BTServer:
     def run(self):
         if(not(os.path.exists("config.ini"))):
             self.cfg['Twitter'] = { 'users': "UNWatch,Twitter" }
-            self.cfg['Technical'] = { 'time_interval': 3600 }
+            self.cfg['Technical'] = { 
+                                        'time_interval': 3600,
+                                        'db_name': "bettertwitter",
+                                        'db_host': "localhost",
+                                        'db_port': 5432,
+                                        'db_user': "bettertwitter",
+                                        'db_pass': "123"
+                                    }
             with open('config.ini', 'w') as configfile:
                 self.cfg.write(configfile)
         else:
            self.cfg.read("config.ini") 
 
         list_users = self.sanitize_users(self.cfg['Twitter']['users'])
+
+
+        #self.db = PGSQL_DB("bettertwitter", "localhost", 5432, "bettertwitter", "123")
+        self.db = PGSQL_DB(
+                            self.cfg['Technical']['db_name'],
+                            self.cfg['Technical']['db_host'],
+                            int(self.cfg['Technical']['db_port']),
+                            self.cfg['Technical']['db_user'],
+                            self.cfg['Technical']['db_pass']
+                        )
 
         scrape = threading.Thread(target=self.thrd_scrape_users, args=(list_users, int(self.cfg['Technical']['time_interval'])))
         scrape.start()

@@ -10,8 +10,8 @@ class PGSQL_DB(DB_Abstract):
     def __init__(self, dbname, dbhost, dbport, dbuser, dbpass):
         try:
             self.conn = DB(dbname=dbname, host=dbhost, port=dbport, user=dbuser, passwd=dbpass)
-        except:
-            print("sth wrong bro")
+        except Exception as ex:
+            print(ex)
             self.conn = None
 
         if (None != self.conn):
