@@ -4,9 +4,18 @@ from postgres import PGSQL_DB
 from bt_scraper import User
 from bt_scraper import Tweet
 
+class Message:
+    text = ""
+
+    def __init__(self, text):
+        self.text = text
+
+    def to_json(self):
+        return "{ 'status': \"" + self.text +"\" }"
+
 class WebAPI:
     api = Flask(__name__)
-    #api.db =
+    
     def __init__(self, db):
         self.api.db = db
 
@@ -15,15 +24,17 @@ class WebAPI:
         pass
 
     @api.route('/user', methods=['POST'])
-    def post_user(self):
+    def post_user():
         body = request.get_json(silent=True)
         if(None == body):
-            return "no body"
+            msg = Message("no body")
+            return msg.to_json()
 
         req_params = [ 'uid', 'username' ]
         for param in req_params:
             if(not(param in body)):
-                return "no " + param
+                msg = Message("no " + param)
+                return msg.to_json()
 
         u = User()
         u.user_id = body['uid']
@@ -33,7 +44,8 @@ class WebAPI:
 
         status = current_app.db.insert_user(u)
         if (200 == status):
-            return "ok"
+            msg = Message("ok")
+            return msg.to_json()
     
         return "couldn't insert"
 
@@ -41,12 +53,14 @@ class WebAPI:
     def post_tweet():
         body = request.get_json(silent=True)
         if(None == body):
-            return "no body"
+            msg = Message("no body")
+            return msg.to_json()
 
         req_params = [ 'tid', 'author_id', 'parent_id', 'timestamp', 'text' ]
         for param in req_params:
             if(not(param in body)):
-                return "no " + param
+                msg = Message ("no " + param)
+                return msg.to_json()
 
         t = Tweet()
         t.tweet_id = body['tid']
@@ -58,13 +72,16 @@ class WebAPI:
         status = current_app.db.insert_tweet(t)
     
         if(200 == status):
-            return "ok"
+            msg = Message("ok")
+            return msg.to_json()
 
-        return "couldn't insert"
+        msg = Message("error inserting user. please refer to server log.")
+        return msg.to_json()
 
     @api.route('/user', methods=['GET'])
     def get_user():
-        return "error"
+        msg = Message("no user ID to GET. expected url: /user/{id}")
+        return msg.to_json()
 
     # currently assumes getting by ID since no other method is implemented
     @api.route('/user/<uid>', methods=['GET'])
@@ -72,11 +89,13 @@ class WebAPI:
         user = current_app.db.get_user_by_id(uid)
         if(None != user):
             return user.to_json()
-        return "error"
+        msg = Message("couldn't find user with ID: " + uid)
+        return msg.to_json()
 
     @api.route('/tweet', methods=['GET'])
     def get_tweet():
-        return "error"
+        msg = Message("no tweet ID to GET. expected url: /tweet/{id}")
+        return msg.to_json()
 
     # currently assumes getting by ID since no other method is implemented
     @api.route('/tweet/<tid>', methods=['GET'])
@@ -89,7 +108,8 @@ class WebAPI:
                 if (None != replies):
                     tweet.replies = replies
             return tweet.to_json()
-        return "error"
+        msg = Message("couldn't find tweet with ID: " + tid)
+        return msg.to_json()
 
 if __name__ == '__main__':
     a = WebAPI(PGSQL_DB("bettertwitter", "localhost", 5432, "bettertwitter", "123"))
