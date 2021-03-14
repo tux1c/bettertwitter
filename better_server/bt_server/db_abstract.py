@@ -27,6 +27,13 @@ class DB_Abstract:
     def get_user_by_id(self, user_id):
         pass
 
+    # Gets all tweets for user
+    # INPUT: user ID
+    # OUTPUT: >=1 list of tweets by user, or None
+    # DESC: gets all tweets written by a specific user.
+    def get_user_tweets(self, uid):
+        pass
+
     # Gets a tweet by it's ID
     # INPUT: tweet ID
     # OUTPUT: tweet struct or null
