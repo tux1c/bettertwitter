@@ -93,6 +93,36 @@ class PGSQL_DB(DB_Abstract):
 
         return user
 
+    def get_user_tweets(self, uid):
+        if ("" == uid):
+            print("empty uid")
+            return None
+        if (None == self.conn):
+            print("no connection")
+            return None
+
+        try:
+            t = self.conn.get_as_list('tweets', where="author_id = {0}".format(uid))
+        except Exception as ex:
+            print(ex)
+            return None
+
+        tweets = []
+
+        for tweet in t:
+            new_tweet = Tweet()
+            new_tweet.tweet_id = tweet[0]
+            new_tweet.author_id = tweet[1]
+            new_tweet.parent_id = tweet[2]
+            new_tweet.timestamp = tweet[3]
+            new_tweet.text = tweet[4]
+            tweets.append(new_tweet)
+
+        if (0 == len(tweets)):
+            return None
+
+        return tweets
+
     def get_tweet_by_id(self, tweet_id):
         if(None == self.conn):
             print("no connection")

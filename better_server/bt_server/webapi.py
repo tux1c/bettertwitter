@@ -1,4 +1,6 @@
 from flask import Flask, request, current_app
+import json
+
 from postgres import PGSQL_DB
 
 from bt_scraper import User
@@ -90,6 +92,14 @@ class WebAPI:
         if(None != user):
             return user.to_json()
         msg = Message("couldn't find user with ID: " + uid)
+        return msg.to_json()
+
+    @api.route('/user/<uid>/tweets', methods=['GET'])
+    def get_user_tweets(uid):
+        tweets = current_app.db.get_user_tweets(uid)
+        if (None != tweets):
+            return json.dumps([tweet.to_dict() for tweet in tweets])
+        msg = Message("couldn't find tweets for user ID: " + uid)
         return msg.to_json()
 
     @api.route('/tweet', methods=['GET'])
